@@ -1,0 +1,10 @@
+# -------------------------------------------------------------------------- #
+# Quartus Prime Project File
+# Block Blast FPGA Game for DE1-SoC - Version 4
+# -------------------------------------------------------------------------- #
+
+QUARTUS_VERSION = "23.1"
+DATE = "2024-11-09"
+
+PROJECT_REVISION = "block_blast_4"
+

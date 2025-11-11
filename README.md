@@ -1,4 +1,4 @@
-# Block Blast? Maybe, I need to finalize the name later.
+# Block-Blast? Maybe, I need to finalize the name later.
 *A small Verilog game project on the DE1-SoC board*  
 by **Alan He** and [**Harry Zhang**](https://github.com/po8onthetrack)  
 _Last updated: 2025-11-11_

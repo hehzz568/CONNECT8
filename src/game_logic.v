@@ -81,39 +81,75 @@ module game_logic(
             paint = g;
         end
     endfunction
+	 
+    // count how many cells are 1 in a block (used for placement score)
+    function automatic [7:0] count_cells(input [63:0] b);
+        integer i;
+        reg [7:0] cnt;
+        begin
+            cnt = 8'd0;
+            for (i = 0; i < 64; i = i + 1)
+                if (b[i]) cnt = cnt + 8'd1;
+            count_cells = cnt;
+        end
+    endfunction
 
+    // count + clear full rows/columns, and compute score for the clear
     task automatic clear_lines(
         input  [63:0] grid_in,
         output [63:0] grid_out,
         output [7:0]  add
     );
-        integer r,c; reg full; reg [63:0] g;
+        integer r, c;
+        reg [63:0] g;
+        reg [7:0] row_full, col_full;
+        integer nr, nc;
+        integer total;
         begin
-            g = grid_in; add = 8'd0;
+            g        = grid_in;
+            row_full = 8'b0;
+            col_full = 8'b0;
 
-            // rows
-            for (r=0;r<8;r=r+1) begin
-                full=1;
-                for (c=0;c<8;c=c+1) if (!g[r*8+c]) full=0;
-                if (full) begin
-                    add = add + 8'd1;
-                    for (c=0;c<8;c=c+1) g[r*8+c] = 1'b0;
-                end
+            // find which rows are completely filled
+            for (r = 0; r < 8; r = r + 1) begin
+                row_full[r] = 1'b1;
+                for (c = 0; c < 8; c = c + 1)
+                    if (!g[r*8 + c])
+                        row_full[r] = 1'b0;
             end
 
-            // columns
-            for (c=0;c<8;c=c+1) begin
-                full=1;
-                for (r=0;r<8;r=r+1) if (!g[r*8+c]) full=0;
-                if (full) begin
-                    add = add + 8'd1;
-                    for (r=0;r<8;r=r+1) g[r*8+c] = 1'b0;
-                end
+            // find which columns are completely filled
+            for (c = 0; c < 8; c = c + 1) begin
+                col_full[c] = 1'b1;
+                for (r = 0; r < 8; r = r + 1)
+                    if (!g[r*8 + c])
+                        col_full[c] = 1'b0;
             end
 
+            // clear all cells that are in a full row or a full column
+            for (r = 0; r < 8; r = r + 1)
+                for (c = 0; c < 8; c = c + 1)
+                    if (row_full[r] || col_full[c])
+                        g[r*8 + c] = 1'b0;
+
+            // count how many rows / columns were cleared
+            nr = 0;
+            nc = 0;
+            for (r = 0; r < 8; r = r + 1)
+                if (row_full[r]) nr = nr + 1;
+            for (c = 0; c < 8; c = c + 1)
+                if (col_full[c]) nc = nc + 1;
+
+            // score for clearing:
+            //  - 8 points for each full row/column (approx. 1 per cell)
+            //  - + (nr*nc) extra points if rows and columns cross
+            total = (nr + nc)*8 + (nr * nc);
+
+            add      = total[7:0];
             grid_out = g;
         end
     endtask
+
 
 
     reg [63:0] tmp_grid;
@@ -160,9 +196,10 @@ module game_logic(
                 tmp_grid   = paint(block1,block1_x,block1_y,game_grid);
                 clear_lines(tmp_grid, cleared_grid, gain);
                 game_grid <= cleared_grid;  
-                score     <= score + gain;
+                score     <= score + count_cells(block1) + gain;
                 block1    <= 64'b0;
             end
+
 
         end else if (sel==2) begin
             if (move_left  && block2_x > 0 &&
@@ -187,9 +224,10 @@ module game_logic(
                 tmp_grid   = paint(block2,block2_x,block2_y,game_grid);
                 clear_lines(tmp_grid, cleared_grid, gain);
                 game_grid <= cleared_grid;
-                score     <= score + gain;
+                score     <= score + count_cells(block2) + gain;
                 block2    <= 64'b0;
             end
+
 
         end else begin // sel==3
             if (move_left  && block3_x > 0 &&
@@ -214,7 +252,7 @@ module game_logic(
                 tmp_grid   = paint(block3,block3_x,block3_y,game_grid);
                 clear_lines(tmp_grid, cleared_grid, gain);
                 game_grid <= cleared_grid;
-                score     <= score + gain;
+                score     <= score + count_cells(block3) + gain;
                 block3    <= 64'b0;
             end
         end

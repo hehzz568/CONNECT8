@@ -7,11 +7,11 @@ module block_generator(
     output reg [63:0] block2,
     output reg [63:0] block3
 );
-    reg [15:0] lfsr = 16'hACE1;
+    reg [15:0] lfsr = 16'hACE1;  
 
     always @(posedge clk) begin
         lfsr <= { lfsr[14:0],
-                  lfsr[15] ^ lfsr[13] ^ lfsr[12] ^ lfsr[10] };
+                 lfsr[15] ^ lfsr[13] ^ lfsr[12] ^ lfsr[10] }; //generates a random index
     end
 
  function [63:0] shape;
@@ -49,7 +49,7 @@ module block_generator(
                 5'd28: shape = 64'h0000000000000306; // S
                 5'd29: shape = 64'h0000000000020301; // S
                 5'd30: shape = 64'h0000000000000306; // S
-                5'd31: shape = 64'h0000000000020301; // S
+                5'd31: shape = 64'h0000000000020301; // S  // shape look up table, each bit represents a 2*2 grid
 
                 default: shape = 64'h0000000000000001; // 1x1 fallback (should rarely happen)
             endcase
@@ -67,7 +67,7 @@ module block_generator(
 
             block1 <= shape(lfsr[4:0]);
             block2 <= shape(lfsr[9:5]);
-            block3 <= shape(lfsr[14:10]);
+            block3 <= shape(lfsr[14:10]);  // each block gets a 5bit value from lfsr(random number), display on the VGA monitor
         end
     end
 

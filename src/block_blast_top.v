@@ -55,7 +55,7 @@ module block_blast_top (
         .make_pulse (make_pulse)
     );
 
-    // --- Event toggles in 50 MHz domain
+    // Event toggles in 50 MHz domain
     reg tgl_L, tgl_R, tgl_U, tgl_D, tgl_P, tgl_ROT, tgl_1, tgl_2, tgl_3;
     always @(posedge CLOCK_50 or posedge reset) begin
         if (reset) begin
@@ -76,7 +76,7 @@ module block_blast_top (
         end
     end
 
-    // --- Synchronize toggles into clk_game and edge-detect (one-tick pulses)
+    // Synchronize toggles into clk_game and edge-detect (one-tick pulses)
     reg [1:0] sL, sR, sU, sD, sP, sROT, s1_sync, s2_sync, s3_sync;
     always @(posedge clk_game or posedge reset) begin
         if (reset) begin
@@ -103,6 +103,20 @@ module block_blast_top (
     wire sel1      = s1_sync[1] ^ s1_sync[0];
     wire sel2      = s2_sync[1] ^ s2_sync[0];
     wire sel3      = s3_sync[1] ^ s3_sync[0];
+
+	 
+	 // title image
+	 
+	 reg show_title;
+	 
+	 always @(posedge clk_game or posedge reset) begin
+		if (reset)
+			show_title <= 1'b1;
+		else if (show_title &&
+					(move_l | move_r | move_u | move_d |
+					place | rotate | sel1 | sel2 | sel3))
+			show_title <= 1'b0;
+		end
 
     // Game logic 
     wire [63:0] grid;
@@ -143,6 +157,7 @@ module block_blast_top (
         .block3_x    (blk3_x), .block3_y(blk3_y),
         .score       (score),
         .game_over   (game_over),
+		  .show_title  (show_title),
         .vga_r       (VGA_R),
         .vga_g       (VGA_G),
         .vga_b       (VGA_B),

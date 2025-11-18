@@ -154,9 +154,7 @@ module game_logic(
                 can_place(block1, block1_x, block1_y+3'd1, 64'b0))
                 block1_y <= block1_y+3'd1;
 
-            if (rotate_block &&
-                can_place(rotate90(block1), block1_x, block1_y, 64'b0))
-                block1 <= rotate90(block1);
+            // if (rotate_block && can_place(rotate90(block1), block1_x, block1_y, 64'b0)) block1 <= rotate90(block1);
 
             if (place_block && can_place(block1,block1_x,block1_y,game_grid)) begin
                 tmp_grid   = paint(block1,block1_x,block1_y,game_grid);
@@ -183,9 +181,7 @@ module game_logic(
                 can_place(block2, block2_x, block2_y+3'd1, 64'b0))
                 block2_y <= block2_y+3'd1;
 
-            if (rotate_block &&
-                can_place(rotate90(block2), block2_x, block2_y, 64'b0))
-                block2 <= rotate90(block2);
+            // if (rotate_block && can_place(rotate90(block2), block2_x, block2_y, 64'b0)) block2 <= rotate90(block2);
 
             if (place_block && can_place(block2,block2_x,block2_y,game_grid)) begin
                 tmp_grid   = paint(block2,block2_x,block2_y,game_grid);
@@ -212,9 +208,7 @@ module game_logic(
                 can_place(block3, block3_x, block3_y+3'd1, 64'b0))
                 block3_y <= block3_y+3'd1;
 
-            if (rotate_block &&
-                can_place(rotate90(block3), block3_x, block3_y, 64'b0))
-                block3 <= rotate90(block3);
+            // if (rotate_block && can_place(rotate90(block3), block3_x, block3_y, 64'b0)) block3 <= rotate90(block3);
 
             if (place_block && can_place(block3,block3_x,block3_y,game_grid)) begin
                 tmp_grid   = paint(block3,block3_x,block3_y,game_grid);

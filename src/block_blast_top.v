@@ -1,4 +1,4 @@
-// block_blast_top.v  — top (with PS/2 -> clk_game CDC fix and digit name clash resolved)
+// block_blast_top.v  — top
 module block_blast_top (
     input  wire        CLOCK_50,
 
@@ -25,7 +25,7 @@ module block_blast_top (
     wire reset_n = KEY[0];
     wire reset   = ~reset_n;
 
-    // ---------------- Pixel clock ----------------
+    // Pixel clock
     wire clk_pix;
     clock_divider #(.DIVISOR(2)) u_pixclk (
         .clk_in (CLOCK_50),
@@ -35,7 +35,7 @@ module block_blast_top (
     assign VGA_CLK    = clk_pix;
     assign VGA_SYNC_N = 1'b0;
 
-    // ---------------- Game clock (~50 Hz if DIVISOR=1_000_000) ----------------
+    // Game clock (~50 Hz if DIVISOR=1_000_000) 
     wire clk_game;
     clock_divider #(.DIVISOR(1_000_000)) u_gameclk (
         .clk_in (CLOCK_50),
@@ -43,7 +43,7 @@ module block_blast_top (
         .clk_out(clk_game)
     );
 
-    // ---------------- PS/2 keyboard (50 MHz domain) ----------------
+    // PS/2 keyboard (50 MHz domain)
     wire [7:0] scan_code;
     wire       make_pulse;
     ps2_kbd_adapter u_kbd (
@@ -104,7 +104,7 @@ module block_blast_top (
     wire sel2      = s2_sync[1] ^ s2_sync[0];
     wire sel3      = s3_sync[1] ^ s3_sync[0];
 
-    // ---------------- Game logic ----------------
+    // Game logic 
     wire [63:0] grid;
     wire [7:0]  score;
     wire        game_over;
@@ -118,7 +118,7 @@ module block_blast_top (
         .move_right   (move_r),
         .move_up      (move_u),
         .move_down    (move_d),
-        .rotate_block (rotate),
+        .rotate_block (1'b0),
         .place_block  (place),
         .sel1         (sel1),
         .sel2         (sel2),
@@ -132,7 +132,7 @@ module block_blast_top (
         .block3_x     (blk3_x), .block3_y(blk3_y)
     );
 
-    // ---------------- VGA render ----------------
+    // VGA render
     vga_controller u_vga (
         .clk         (clk_pix),
         .reset       (reset),
@@ -151,7 +151,7 @@ module block_blast_top (
         .vga_blank_n (VGA_BLANK_N)
     );
 
-    // ---------------- LED/HEX ----------------
+    // LED/HEX
     assign LEDR[0]   = ~reset;        // reset_n indicator
     assign LEDR[1]   = game_over;     // game over
     assign LEDR[9:2] = {SW[7:0]};     // passthrough

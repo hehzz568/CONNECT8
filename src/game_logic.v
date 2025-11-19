@@ -11,6 +11,7 @@ module game_logic(
     output reg  [2:0]  block1_x, block1_y,
     output reg  [2:0]  block2_x, block2_y,
     output reg  [2:0]  block3_x, block3_y
+	output reg         LEDR2
 );
     wire gen_new = (block1==64'b0 && block2==64'b0 && block3==64'b0);
     wire [63:0] nb1, nb2, nb3;
@@ -161,6 +162,7 @@ module game_logic(
         game_grid <= 64'b0;
         score     <= 8'b0;
         game_over <= 1'b0;
+		LEDR2 <= 1'b0;
 
         // start with no blocks, generator + gen_new will fill them
         block1    <= 64'b0;
@@ -171,6 +173,7 @@ module game_logic(
         block2_x  <= 3'd3; block2_y <= 3'd0;
         block3_x  <= 3'd0; block3_y <= 3'd3;
     end else begin
+		LEDR2 <= game_over;
 
                 if (sel==1) begin
             // use can_place with empty grid so movement respects block size

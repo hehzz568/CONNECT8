@@ -5,13 +5,12 @@ module game_logic(
     input  wire rotate_block, place_block,
     input  wire sel1, sel2, sel3,
     output reg  [63:0] game_grid,
-    output reg  [7:0]  score,
+    output reg  [19:0]  score,
     output reg         game_over,
     output reg  [63:0] block1, block2, block3,
     output reg  [2:0]  block1_x, block1_y,
     output reg  [2:0]  block2_x, block2_y,
     output reg  [2:0]  block3_x, block3_y
-	output reg         LEDR2
 );
     wire gen_new = (block1==64'b0 && block2==64'b0 && block3==64'b0);
     wire [63:0] nb1, nb2, nb3;
@@ -68,6 +67,24 @@ module game_logic(
         end
     endfunction
 
+	 function automatic check_remaining_space(
+			input [63:0] b, input [63:0] grid
+	 );
+			integer x,y;
+			begin
+					if (b == 64'b0) begin
+						check_remaining_space = 1'b0;
+					end else begin
+						check_remaining_space = 1'b0;
+							for (y=0; y<8;y=y+1)
+								for (x=0;x<8;x=x+1)
+									if(!check_remaining_space &&
+										can_place(b,x[2:0],y[2:0],grid))
+										check_remaining_space = 1'b1;
+					end
+			end
+	 endfunction
+	 
     function automatic [63:0] paint(
         input [63:0] b, input [2:0] x, input [2:0] y, input [63:0] grid
     );
@@ -160,9 +177,8 @@ module game_logic(
     always @(posedge clk or posedge reset) begin
     if (reset) begin
         game_grid <= 64'b0;
-        score     <= 8'b0;
+        score     <= 20'd0;
         game_over <= 1'b0;
-		LEDR2 <= 1'b0;
 
         // start with no blocks, generator + gen_new will fill them
         block1    <= 64'b0;
@@ -173,7 +189,6 @@ module game_logic(
         block2_x  <= 3'd3; block2_y <= 3'd0;
         block3_x  <= 3'd0; block3_y <= 3'd3;
     end else begin
-		LEDR2 <= game_over;
 
                 if (sel==1) begin
             // use can_place with empty grid so movement respects block size
@@ -268,12 +283,17 @@ module game_logic(
             block1_x <= 3'd0; block1_y <= 3'd0;
             block2_x <= 3'd3; block2_y <= 3'd0;
             block3_x <= 3'd0; block3_y <= 3'd3;
-
-            if (!can_place(nb1,0,0,game_grid) &&
-                !can_place(nb2,3,0,game_grid) &&
-                !can_place(nb3,0,3,game_grid))
-                game_over <= 1'b1;
 				end
+			
+		  if (!game_over) begin
+				if (block1 != 64'b0 || block2 != 64'b0 || block3 != 64'b0) begin
+					if((block1 == 64'b0 || !check_remaining_space(block1, game_grid)) &&
+					   (block2 == 64'b0 || !check_remaining_space(block2, game_grid)) &&
+						(block3 == 64'b0 || !check_remaining_space(block3, game_grid)) ) begin
+						game_over <= 1'b1;
+					end
+				end
+			end
 			end
 		end
 

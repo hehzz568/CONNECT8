@@ -120,7 +120,7 @@ module block_blast_top (
 
     // Game logic 
     wire [63:0] grid;
-    wire [7:0]  score;
+    wire [19:0]  score;
     wire        game_over;
     wire [63:0] blk1, blk2, blk3;
     wire [2:0]  blk1_x, blk1_y, blk2_x, blk2_y, blk3_x, blk3_y;
@@ -169,18 +169,21 @@ module block_blast_top (
     // LED/HEX
     assign LEDR[0]   = ~reset;        // reset_n indicator
     assign LEDR[1]   = game_over;     // game over
-    assign LEDR[9:2] = {SW[7:0]};     // passthrough
+    assign LEDR[9:2] = {SW[7:0]};     // passthrough and meaningless
 
     // score to HEX (rename to avoid clash with s1/s2 sync regs)
     wire [3:0] dig0 = score % 10;
     wire [3:0] dig1 = (score / 10)  % 10;
     wire [3:0] dig2 = (score / 100) % 10;
+	 wire [3:0] dig3 = (score / 1000) % 10;
+	 wire [3:0] dig4 = (score / 10000) % 10;
+	 wire [3:0] dig5 = (score / 100000) % 10;
     hex7 u_hex0(.val(dig0), .seg(HEX0));
     hex7 u_hex1(.val(dig1), .seg(HEX1));
     hex7 u_hex2(.val(dig2), .seg(HEX2));
-    assign HEX3 = 7'h7F;
-    assign HEX4 = 7'h7F;
-    assign HEX5 = 7'h7F;
+	 hex7 u_hex3(.val(dig3), .seg(HEX3));
+    hex7 u_hex4(.val(dig4), .seg(HEX4));
+    hex7 u_hex5(.val(dig5), .seg(HEX5));
 
 endmodule
 

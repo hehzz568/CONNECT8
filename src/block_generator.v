@@ -66,10 +66,10 @@ module block_generator(
         end else if (generate_new) begin
 
             block1 <= shape(lfsr[4:0]);
-            block2 <= shape(lfsr[9:5]);
-            block3 <= shape(lfsr[14:10]);
+            block2 <= shape(lfsr[9:5]); 
+            block3 <= shape(lfsr[14:10]);  // randomly select three blocks
         end
-    end
+    end   
 
 
 endmodule
